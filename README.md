@@ -1,6 +1,8 @@
 # Library
 CRUD Rest API Java Spring-boot
 
+running = mvn spring-boot:run
+
 Database name = library
 
 API : link postman (https://www.getpostman.com/collections/69ef10e5300662ebb7fe)
