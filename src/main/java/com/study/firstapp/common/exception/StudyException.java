@@ -6,6 +6,7 @@ public class StudyException extends Exception {
     private final ErrorCode errorCode;
 
     public StudyException(ErrorCode errorCode) {
+        super();
         this.errorCode = errorCode;
     }
 

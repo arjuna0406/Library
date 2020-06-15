@@ -7,8 +7,6 @@ import com.study.firstapp.model.Author;
 import com.study.firstapp.repository.AuthorRepository;
 import com.study.firstapp.service.AuthorService;
 import com.study.firstapp.wrapper.AuthorWrapper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +19,6 @@ import java.util.Optional;
 
 @Service
 public class AuthorServiceImpl implements AuthorService {
-    private static Logger logger = LogManager.getLogger(AuthorServiceImpl.class.getName());
 
     private final AuthorRepository authorRepository;
 
@@ -31,15 +28,16 @@ public class AuthorServiceImpl implements AuthorService {
 
     private AuthorWrapper toWrapper(Author entity){
         AuthorWrapper wrapper = new AuthorWrapper();
+        if (entity != null) {
+            wrapper.setId(entity.getId());
+            wrapper.setDeleted(entity.getDeleted());
+            wrapper.setDescription(entity.getDescription());
+            wrapper.setVersion(entity.getVersion());
 
-        wrapper.setId(entity.getId());
-        wrapper.setDeleted(entity.getDeleted());
-        wrapper.setDescription(entity.getDescription());
-        wrapper.setVersion(entity.getVersion());
-
-        wrapper.setName(entity.getName());
-        wrapper.setAddress(entity.getAddress());
-        wrapper.setGender(entity.getGender());
+            wrapper.setName(entity.getName());
+            wrapper.setAddress(entity.getAddress());
+            wrapper.setGender(entity.getGender());
+        }
 
         return wrapper;
     }
@@ -47,8 +45,10 @@ public class AuthorServiceImpl implements AuthorService {
     private Author toEntity(AuthorWrapper wrapper){
         Author entity = new Author();
         if (wrapper.getId() != null){
-            Optional<Author> optionalAuthor = authorRepository.findById(wrapper.getId());
-            entity = optionalAuthor.get();
+            Optional<Author> optional = authorRepository.findById(wrapper.getId());
+            if (optional.isPresent()){
+                entity = optional.get();
+            }
         }
         entity.setDescription(wrapper.getDescription());
         entity.setDeleted(wrapper.getDeleted());
@@ -72,19 +72,16 @@ public class AuthorServiceImpl implements AuthorService {
     }
     @Override
     public Long getNum() {
-        logger.info("getNum");
         return authorRepository.count();
     }
 
     @Override
     public AuthorWrapper save(AuthorWrapper wrapper) throws StudyException {
-        logger.info("save " + wrapper);
         return toWrapper(authorRepository.save(toEntity(wrapper)));
     }
 
     @Override
     public AuthorWrapper getById(Long pk) throws StudyException {
-        logger.info("getById "+ pk);
         Optional<Author> optionalAuthor = authorRepository.findById(pk);
         return optionalAuthor.map(this::toWrapper).orElse(null);
     }
@@ -92,29 +89,25 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public Boolean delete(Long pk) throws StudyException {
         try {
-            logger.info("deleteById "+pk);
             authorRepository.deleteById(pk);
             return true;
         } catch (Exception e){
-            logger.info(e);
             throw new StudyException(e, ErrorCode.GENERIC_FAILURE);
         }
     }
 
     @Override
     public List<AuthorWrapper> getAll() throws StudyException {
-        logger.info("getAll");
         return toWrapperList((List<Author>) authorRepository.findAll());
     }
 
     @Override
     public void deleteAll() throws StudyException {
-        logger.info("Not Implemented Yet");
+        // Do nothing
     }
 
     @Override
     public Page<AuthorWrapper> getPageableList(String sSearch, int startPage, int pageSize, Sort sort) throws StudyException {
-        logger.info("Get Pageable list with : " + sSearch + "/startPage : " + startPage + "/pageSize :" + pageSize + "/sort : " + sort);
         int page = DataTableObject.getPageFromStartAndLength(startPage, pageSize);
         if (authorRepository.count() == 0){
             return new PageImpl<>(new ArrayList<>(), PageRequest.of(page, pageSize, sort), 0);
