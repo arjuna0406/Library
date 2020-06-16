@@ -1,0 +1,15 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <property name="now" value="sysdate" dbms="postgres" />
+    <changeSet id="insert-table-author" author="postgres" context="insert_table">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="author" schemaName="public"></tableExists>
+        </preConditions>
+        <sqlFile path="assets\insert.sql"/>
+        <comment>insert Data</comment>
+    </changeSet>
+</databaseChangeLog>
